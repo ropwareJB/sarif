@@ -49,6 +49,6 @@ instance FromJSON Result where
         MkResult <$> obj .: "ruleId"
                  <*> obj .: "message"
                  <*> obj .: "locations"
-                 <*> obj .: "level"
+                 <*> obj .:? "level"
 
 --------------------------------------------------------------------------------

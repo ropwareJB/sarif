@@ -41,7 +41,7 @@ instance ToJSON Tool where
 instance FromJSON Tool where
     parseJSON = withObject "Tool" $ \obj ->
         MkTool <$> obj .: "driver"
-               <*> obj .: "extensions" .!= []
+               <*> obj .:? "extensions" .!= []
 
 -- | A description of a tool component, such as a static analysis tool or
 -- an extension to one.
@@ -76,7 +76,7 @@ instance ToJSON ToolComponent where
 instance FromJSON ToolComponent where
     parseJSON = withObject "ToolComponent" $ \obj ->
         MkToolComponent <$> obj .: "name"
-                        <*> obj .: "fullName"
+                        <*> obj .:? "fullName"
                         <*> obj .:? "semanticVersion"
                         <*> obj .:? "version"
                         <*> obj .:? "guid"

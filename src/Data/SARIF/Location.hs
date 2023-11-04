@@ -56,11 +56,11 @@ data Region = MkRegion {
     -- | The line on which this region starts.
     regionStartLine :: Int,
     -- | The column within the starting line where this region starts.
-    regionStartColumn :: Int,
+    regionStartColumn :: Maybe Int,
     -- | The line on which this region ends.
-    regionEndLine :: Int,
+    regionEndLine :: Maybe Int,
     -- | The column within the ending line where this region ends.
-    regionEndColumn :: Int
+    regionEndColumn :: Maybe Int
 } deriving (Eq, Show)
 
 instance ToJSON Region where
@@ -74,9 +74,9 @@ instance ToJSON Region where
 instance FromJSON Region where
     parseJSON = withObject "Region" $ \obj ->
         MkRegion <$> obj .: "startLine"
-                 <*> obj .: "startColumn"
-                 <*> obj .: "endLine"
-                 <*> obj .: "endColumn"
+                 <*> obj .:? "startColumn"
+                 <*> obj .:? "endLine"
+                 <*> obj .:? "endColumn"
 
 -- | Represents parts of artifacts, e.g. a `Region` within a file.
 data PhysicalLocation = MkPhysicalLocation {
