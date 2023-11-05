@@ -10,6 +10,7 @@
 module Data.SARIF.Location (
     Location(..),
     ArtifactLocation(..),
+    ArtifactContent(..),
     Region(..),
     PhysicalLocation(..)
 ) where
@@ -18,6 +19,8 @@ module Data.SARIF.Location (
 
 import Data.Aeson
 import Data.Text
+
+import Data.SARIF.MultiformatMessageString
 
 --------------------------------------------------------------------------------
 
@@ -60,7 +63,9 @@ data Region = MkRegion {
     -- | The line on which this region ends.
     regionEndLine :: Maybe Int,
     -- | The column within the ending line where this region ends.
-    regionEndColumn :: Maybe Int
+    regionEndColumn :: Maybe Int,
+    -- | The code that this region corresponds to
+    regionSnippet :: Maybe ArtifactContent
 } deriving (Eq, Show)
 
 instance ToJSON Region where
@@ -69,6 +74,7 @@ instance ToJSON Region where
         , "startColumn" .= regionStartColumn
         , "endLine" .= regionEndLine
         , "endColumn" .= regionEndColumn
+        , "snippet" .= regionSnippet
         ]
 
 instance FromJSON Region where
@@ -77,22 +83,45 @@ instance FromJSON Region where
                  <*> obj .:? "startColumn"
                  <*> obj .:? "endLine"
                  <*> obj .:? "endColumn"
+                 <*> obj .:? "snippet"
 
 -- | Represents parts of artifacts, e.g. a `Region` within a file.
 data PhysicalLocation = MkPhysicalLocation {
     physicalLocationArtifactLocation :: ArtifactLocation,
-    physicalLocationRegion :: Region
+    physicalLocationRegion :: Region,
+    physicalLocationContextRegion :: Maybe Region
 } deriving (Eq, Show)
 
 instance ToJSON PhysicalLocation where
     toJSON MkPhysicalLocation{..} = object
         [ "artifactLocation" .= physicalLocationArtifactLocation
         , "region" .= physicalLocationRegion
+        , "contextRegion" .= physicalLocationContextRegion
         ]
 
 instance FromJSON PhysicalLocation where
     parseJSON = withObject "PhysicalLocation" $ \obj ->
         MkPhysicalLocation <$> obj .: "artifactLocation"
                            <*> obj .: "region"
+                           <*> obj .: "contextRegion"
+
+data ArtifactContent = MkArtifactContent {
+    artifactContentText :: Maybe Text,
+    artifactContentBinaryBase64 :: Maybe Text,
+    artifactContentRendered :: Maybe MultiformatMessageString
+} deriving (Eq, Show)
+
+instance ToJSON ArtifactContent where
+    toJSON MkArtifactContent{..} = object
+        [ "text" .= artifactContentText
+        , "binary" .= artifactContentBinaryBase64
+        , "rendered" .= artifactContentRendered
+        ]
+
+instance FromJSON ArtifactContent where
+    parseJSON = withObject "ArtifactContent" $ \obj ->
+        MkArtifactContent <$> obj .:? "text"
+                           <*> obj .:? "binary"
+                           <*> obj .:? "rendered"
 
 --------------------------------------------------------------------------------
