@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.35.1.
+-- This file has been generated from package.yaml by hpack version 0.36.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -38,6 +38,7 @@ library
       Data.SARIF.Result
       Data.SARIF.Run
       Data.SARIF.Tool
+      Data.SARIF.VersionControlDetails
   other-modules:
       Paths_sarif
   hs-source-dirs:

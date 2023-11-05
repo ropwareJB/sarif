@@ -22,5 +22,6 @@ import Data.SARIF.ReportingDescriptor as SARIF
 import Data.SARIF.Result as SARIF
 import Data.SARIF.Run as SARIF
 import Data.SARIF.Tool as SARIF
+import Data.SARIF.VersionControlDetails as SARIF
 
 --------------------------------------------------------------------------------

@@ -18,6 +18,7 @@ import Data.Aeson hiding (Result)
 import Data.SARIF.Artifact
 import Data.SARIF.Result (Result(..))
 import Data.SARIF.Tool (Tool(..))
+import Data.SARIF.VersionControlDetails (VersionControlDetails(..))
 
 --------------------------------------------------------------------------------
 
@@ -29,7 +30,9 @@ data Run = MkRun {
     runArtifacts :: [Artifact],
     -- | The results produced by the tool as a result of scanning
     -- the artifacts.
-    runResults :: [Result]
+    runResults :: [Result],
+    -- | The versions of the repositories scanned
+    versionControlProvenance :: [VersionControlDetails]
 } deriving (Eq, Show)
 
 instance ToJSON Run where
@@ -37,6 +40,7 @@ instance ToJSON Run where
         [ "tool" .= runTool
         , "artifacts" .= runArtifacts
         , "results" .= runResults
+        , "versionControlProvenance" .= versionControlProvenance
         ]
 
 instance FromJSON Run where
@@ -44,5 +48,6 @@ instance FromJSON Run where
         MkRun <$> obj .: "tool"
               <*> obj .: "artifacts" .!= []
               <*> obj .: "results" .!= []
+              <*> obj .:? "versionControlProvenance" .!= []
 
 --------------------------------------------------------------------------------
