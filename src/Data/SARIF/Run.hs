@@ -46,8 +46,8 @@ instance ToJSON Run where
 instance FromJSON Run where
     parseJSON = withObject "Run" $ \obj ->
         MkRun <$> obj .: "tool"
-              <*> obj .: "artifacts" .!= []
-              <*> obj .: "results" .!= []
+              <*> obj .:? "artifacts" .!= []
+              <*> obj .:? "results" .!= []
               <*> obj .:? "versionControlProvenance" .!= []
 
 --------------------------------------------------------------------------------
