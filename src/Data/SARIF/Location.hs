@@ -87,8 +87,8 @@ instance FromJSON Region where
 
 -- | Represents parts of artifacts, e.g. a `Region` within a file.
 data PhysicalLocation = MkPhysicalLocation {
-    physicalLocationArtifactLocation :: ArtifactLocation,
-    physicalLocationRegion :: Region,
+    physicalLocationArtifactLocation :: Maybe ArtifactLocation,
+    physicalLocationRegion :: Maybe Region,
     physicalLocationContextRegion :: Maybe Region
 } deriving (Eq, Show)
 
@@ -101,9 +101,9 @@ instance ToJSON PhysicalLocation where
 
 instance FromJSON PhysicalLocation where
     parseJSON = withObject "PhysicalLocation" $ \obj ->
-        MkPhysicalLocation <$> obj .: "artifactLocation"
-                           <*> obj .: "region"
-                           <*> obj .: "contextRegion"
+        MkPhysicalLocation <$> obj .:? "artifactLocation"
+                           <*> obj .:? "region"
+                           <*> obj .:? "contextRegion"
 
 data ArtifactContent = MkArtifactContent {
     artifactContentText :: Maybe Text,
