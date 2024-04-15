@@ -81,7 +81,7 @@ instance FromJSON ToolComponent where
                         <*> obj .:? "version"
                         <*> obj .:? "guid"
                         <*> obj .:? "informationUri"
-                        <*> obj .: "rules" .!= []
+                        <*> obj .:? "rules" .!= []
 
 -- | `defaultToolComponent` is a default value of the `ToolComponent` type.
 defaultToolComponent :: ToolComponent

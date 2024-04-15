@@ -9,7 +9,8 @@
 -- static analysis tool.
 module Data.SARIF.Result (
     Level(..),
-    Result(..)
+    Result(..),
+    BaselineState(..)
 ) where
 
 --------------------------------------------------------------------------------
@@ -33,7 +34,9 @@ data Result = MkResult {
     -- | A list of locations which caused the rule to trigger.
     resultLocations :: [Location],
     -- | An optional override for the default `Level` of the rule.
-    resultLevel :: Maybe Level
+    resultLevel :: Maybe Level,
+    -- | An optional difference indicator between scans
+    resultBaselineState :: Maybe BaselineState
 } deriving (Eq, Show)
 
 instance ToJSON Result where
@@ -42,6 +45,7 @@ instance ToJSON Result where
         , "message" .= resultMessage
         , "locations" .= resultLocations
         , "level" .=? resultLevel
+        , "baselineState" .=? resultBaselineState
         ]
 
 instance FromJSON Result where
@@ -50,5 +54,26 @@ instance FromJSON Result where
                  <*> obj .: "message"
                  <*> obj .: "locations"
                  <*> obj .:? "level"
+                 <*> obj .:? "baselineState"
+
+data BaselineState
+    = BaselineStateNew
+    | BaselineStateUnchanged
+    | BaselineStateUpdated
+    | BaselineStateAbsent
+    deriving (Eq, Show)
+
+instance ToJSON BaselineState where
+    toJSON BaselineStateNew = String "new"
+    toJSON BaselineStateUnchanged = String "unchanged"
+    toJSON BaselineStateUpdated = String "updated"
+    toJSON BaselineStateAbsent = String "absent"
+
+instance FromJSON BaselineState where
+    parseJSON (String "new") = pure BaselineStateNew
+    parseJSON (String "unchanged") = pure BaselineStateUnchanged
+    parseJSON (String "updated") = pure BaselineStateUpdated
+    parseJSON (String "absent") = pure BaselineStateAbsent
+    parseJSON _ = fail "Invalid BaselineState"
 
 --------------------------------------------------------------------------------
