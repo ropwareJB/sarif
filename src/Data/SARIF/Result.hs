@@ -37,6 +37,8 @@ data Result = MkResult {
     resultLevel :: Maybe Level,
     -- | An optional difference indicator between scans
     resultBaselineState :: Maybe BaselineState
+    -- | An optional array of `codeFlow` objects
+    resultCodeFlows :: Maybe [CodeFlow]
 } deriving (Eq, Show)
 
 instance ToJSON Result where
@@ -76,4 +78,91 @@ instance FromJSON BaselineState where
     parseJSON (String "absent") = pure BaselineStateAbsent
     parseJSON _ = fail "Invalid BaselineState"
 
---------------------------------------------------------------------------------
+-- | §3.36 codeFlow object
+data CodeFlow = MkCodeFlow
+    { codeFlowMessage :: Maybe Message
+    , codeFlowThreadFlows :: [ThreadFlow]
+    }
+
+-- | §3.11 message object
+data Message = MkMessage
+    { messageText :: Maybe Text
+    , messageId :: Maybe Text
+    }
+instance ToJSON Message where
+    toJSON MkMessage{..} = object
+        [ "text" .=? messageText
+        , "id" .=? messageId
+        ]
+instance FromJSON Message where
+    parseJSON = withObject "Message" $ \obj ->
+        MkMessage <$> obj .:? "text"
+                 <*> obj .:? "id"
+
+-- | §3.37 threadFlow object
+data ThreadFlow = MkThreadFlow
+    { threadFlowId :: Maybe Text
+    , threadFlowMessage :: Maybe Message
+    -- , threadFlowInitialState :: Maybe (Dict Text MultiformatMessageString) -- 3.37.4
+    -- , threadFlowImmutableState :: Maybe (Dict Text MultiformatMessageString) -- 3.37.5
+    , threadFlowLocations :: Maybe [ThreadFlowLocation]
+    }
+instance ToJSON ThreadFlow where
+    toJSON MkThreadFlow{..} = object
+        [ "text" .=? messageText
+        , "id" .=? messageId
+        ]
+instance FromJSON ThreadFlow where
+    parseJSON = withObject "ThreadFlow" $ \obj ->
+        MkThreadFlow
+                <$> obj .:? "text"
+                <*> obj .:? "id"
+
+-- | §3.38 threadFlowLocation object
+data ThreadFlowLocation = MkThreadFlowLocation
+    { threadFlowLocationIndex :: Maybe Int
+    , threadFlowLocationLocation :: Maybe Location
+    , threadFlowLocationModule :: Maybe Text
+    -- , threadFlowLocationStack :: Maybe Stack -- 3.38.5
+    -- , threadFlowLocationWebRequest :: Maybe WebRequest -- 3.38.6
+    -- , threadFlowLocationWebResponse :: Maybe WebResponse -- 3.38.7
+    , threadFlowLocationKinds :: Maybe [Text]
+    -- , threadFlowLocationState :: Maybe (Dict Text MuliformatMessageString) -- 3.38.9
+    , threadFlowLocationNestingLevel :: Maybe Int
+    , threadFlowLocationExecutionOrder :: Maybe Int
+    , threadFlowLocationExecutionTimeUtc :: Maybe Text
+    , threadFlowLocationImportance :: Maybe Text
+    -- , threadFlowLocationTaxa :: Maybe [ReportingDescriptorReference] -- 3.38.14
+    }
+instance ToJSON ThreadFlowLocation where
+    toJSON MkThreadFlowLocation{..} = object
+        [ "index" .=? threadFlowLocationIndex
+        , "location" .=? threadFlowLocationLocation
+        , "module" .=? threadFlowLocationModule
+        -- , "stack" .=? threadFlowLocationStack
+        -- , "webRequest" .=? threadFlowLocationWebRequest
+        -- , "webResponse" .=? threadFlowLocationWebResponse
+        , "kinds" .=? threadFlowLocationKinds
+        -- , "state" .=? threadFlowState
+        , "nestingLevel" .=? threadFlowNestingLevel
+        , "executionOrder" .=? threadFlowExecutionOrder
+        , "executionTimeUtc" .=? threadFlowExecutionTimeUtc
+        , "importance" .=? threadFlowImportance
+        -- , "taxa" .=? threadFlowLocationTaxa
+        ]
+instance FromJSON ThreadFlowLocation where
+    parseJSON = withObject "ThreadFlowLocation" $ \obj ->
+        MkThreadFlowLocation
+             <$> obj .:? "index"
+             <*> obj .:? "location"
+             <*> obj .:? "module"
+             -- <*> obj .:? "stack"
+             -- <*> obj .:? "webRequest"
+             -- <*> obj .:? "webResponse"
+             <*> obj .:? "kinds"
+             -- <*> obj .:? "state"
+             <*> obj .:? "nestingLevel"
+             <*> obj .:? "executionOrder"
+             <*> obj .:? "executionTimeUtc"
+             <*> obj .:? "importance"
+             -- <*> obj .:? "taxa"
