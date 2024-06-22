@@ -10,7 +10,11 @@
 module Data.SARIF.Result (
     Level(..),
     Result(..),
-    BaselineState(..)
+    BaselineState(..),
+    CodeFlow(..),
+    Message(..),
+    ThreadFlow(..),
+    ThreadFlowLocation(..)
 ) where
 
 --------------------------------------------------------------------------------
@@ -48,6 +52,7 @@ instance ToJSON Result where
         , "locations" .= resultLocations
         , "level" .=? resultLevel
         , "baselineState" .=? resultBaselineState
+        , "codeFlows" .=? resultCodeFlows
         ]
 
 instance FromJSON Result where
@@ -57,6 +62,7 @@ instance FromJSON Result where
                  <*> obj .: "locations"
                  <*> obj .:? "level"
                  <*> obj .:? "baselineState"
+                 <*> obj .:? "codeFlows"
 
 data BaselineState
     = BaselineStateNew
@@ -85,13 +91,14 @@ data CodeFlow = MkCodeFlow
     } deriving (Eq, Show)
 instance ToJSON CodeFlow where
     toJSON MkCodeFlow{..} = object
-        [ "message" .=? messageText
-        , "threadFlows" .=? messageId
+        [ "message" .=? codeFlowMessage
+        , "threadFlows" .= codeFlowThreadFlows
         ]
 instance FromJSON CodeFlow where
     parseJSON = withObject "CodeFlow" $ \obj ->
-        MkCodeFlow <$> obj .:? "message"
-                 <*> obj .:? "threadFlows"
+        MkCodeFlow
+            <$> obj .:? "message"
+            <*> obj .: "threadFlows"
 
 -- | §3.11 message object
 data Message = MkMessage
@@ -118,14 +125,16 @@ data ThreadFlow = MkThreadFlow
     } deriving (Eq, Show)
 instance ToJSON ThreadFlow where
     toJSON MkThreadFlow{..} = object
-        [ "text" .=? messageText
-        , "id" .=? messageId
+        [ "id" .=? threadFlowId
+        , "message" .=? threadFlowMessage
+        , "locations" .=? threadFlowLocations
         ]
 instance FromJSON ThreadFlow where
     parseJSON = withObject "ThreadFlow" $ \obj ->
         MkThreadFlow
-                <$> obj .:? "text"
-                <*> obj .:? "id"
+                <$> obj .:? "id"
+                <*> obj .:? "message"
+                <*> obj .:? "locations"
 
 -- | §3.38 threadFlowLocation object
 data ThreadFlowLocation = MkThreadFlowLocation
@@ -153,10 +162,10 @@ instance ToJSON ThreadFlowLocation where
         -- , "webResponse" .=? threadFlowLocationWebResponse
         , "kinds" .=? threadFlowLocationKinds
         -- , "state" .=? threadFlowState
-        , "nestingLevel" .=? threadFlowNestingLevel
-        , "executionOrder" .=? threadFlowExecutionOrder
-        , "executionTimeUtc" .=? threadFlowExecutionTimeUtc
-        , "importance" .=? threadFlowImportance
+        , "nestingLevel" .=? threadFlowLocationNestingLevel
+        , "executionOrder" .=? threadFlowLocationExecutionOrder
+        , "executionTimeUtc" .=? threadFlowLocationExecutionTimeUtc
+        , "importance" .=? threadFlowLocationImportance
         -- , "taxa" .=? threadFlowLocationTaxa
         ]
 instance FromJSON ThreadFlowLocation where
