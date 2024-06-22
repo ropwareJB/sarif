@@ -36,7 +36,7 @@ data Result = MkResult {
     -- | An optional override for the default `Level` of the rule.
     resultLevel :: Maybe Level,
     -- | An optional difference indicator between scans
-    resultBaselineState :: Maybe BaselineState
+    resultBaselineState :: Maybe BaselineState,
     -- | An optional array of `codeFlow` objects
     resultCodeFlows :: Maybe [CodeFlow]
 } deriving (Eq, Show)
@@ -82,13 +82,22 @@ instance FromJSON BaselineState where
 data CodeFlow = MkCodeFlow
     { codeFlowMessage :: Maybe Message
     , codeFlowThreadFlows :: [ThreadFlow]
-    }
+    } deriving (Eq, Show)
+instance ToJSON CodeFlow where
+    toJSON MkCodeFlow{..} = object
+        [ "message" .=? messageText
+        , "threadFlows" .=? messageId
+        ]
+instance FromJSON CodeFlow where
+    parseJSON = withObject "CodeFlow" $ \obj ->
+        MkCodeFlow <$> obj .:? "message"
+                 <*> obj .:? "threadFlows"
 
 -- | §3.11 message object
 data Message = MkMessage
     { messageText :: Maybe Text
     , messageId :: Maybe Text
-    }
+    } deriving (Eq, Show)
 instance ToJSON Message where
     toJSON MkMessage{..} = object
         [ "text" .=? messageText
@@ -106,7 +115,7 @@ data ThreadFlow = MkThreadFlow
     -- , threadFlowInitialState :: Maybe (Dict Text MultiformatMessageString) -- 3.37.4
     -- , threadFlowImmutableState :: Maybe (Dict Text MultiformatMessageString) -- 3.37.5
     , threadFlowLocations :: Maybe [ThreadFlowLocation]
-    }
+    } deriving (Eq, Show)
 instance ToJSON ThreadFlow where
     toJSON MkThreadFlow{..} = object
         [ "text" .=? messageText
@@ -133,7 +142,7 @@ data ThreadFlowLocation = MkThreadFlowLocation
     , threadFlowLocationExecutionTimeUtc :: Maybe Text
     , threadFlowLocationImportance :: Maybe Text
     -- , threadFlowLocationTaxa :: Maybe [ReportingDescriptorReference] -- 3.38.14
-    }
+    } deriving (Eq, Show)
 instance ToJSON ThreadFlowLocation where
     toJSON MkThreadFlowLocation{..} = object
         [ "index" .=? threadFlowLocationIndex
