@@ -20,8 +20,6 @@ import Data.SARIF.Result (Result(..))
 import Data.SARIF.Tool (Tool(..))
 import Data.SARIF.VersionControlDetails (VersionControlDetails(..))
 
-import Debug.Trace
-
 --------------------------------------------------------------------------------
 
 -- | Represents individual runs of static analysis tools.
