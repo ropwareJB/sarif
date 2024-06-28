@@ -80,6 +80,7 @@ instance FromJSON ToolComponent where
     parseJSON = withObject "ToolComponent" $ \obj ->
         MkToolComponent <$> obj .: "name"
                         <*> obj .:? "fullName"
+                        <*> obj .:? "organization"
                         <*> obj .:? "semanticVersion"
                         <*> obj .:? "version"
                         <*> obj .:? "guid"
