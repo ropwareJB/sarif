@@ -50,6 +50,8 @@ data ToolComponent = MkToolComponent {
     toolComponentName :: Maybe Text,
     -- | The full name of the tool component.
     toolComponentFullName :: Maybe Text,
+    -- | The organization name of the tool component.
+    toolComponentOrganization :: Maybe Text,
     -- | The semver of the tool component.
     toolComponentSemanticVersion :: Maybe Text,
     -- | The version of the tool component.
@@ -66,6 +68,7 @@ instance ToJSON ToolComponent where
     toJSON MkToolComponent{..} = object
         [ "name" .= toolComponentName
         , "fullName" .=? toolComponentFullName
+        , "organization" .=? toolComponentOrganization
         , "semanticVersion" .=? toolComponentSemanticVersion
         , "version" .=? toolComponentVersion
         , "guid" .=? toolComponentGUID
